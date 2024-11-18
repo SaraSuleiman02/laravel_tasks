@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -14,7 +15,9 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::where('user_id', Auth::id())->get();
-        return view('tasks.index', compact('tasks'));
+        $tags = Tag::all(); // Get all tags for the dropdown
+
+        return view('tasks.index', compact('tasks','tags'));
     }
 
     /**
@@ -22,18 +25,23 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'categories' => 'array',
+            'categories.*' => 'exists:tags,id',
         ]);
 
-        Task::create([
+        $task = Task::create([
             'user_id' => Auth::id(),
             'title' => $request->title,
             'priority' => '200',
             'status' => 'in_progress',
         ]);
+        if (!empty($validated['categories'])) {
+            $task->tags()->attach($validated['categories']);
+        }
 
-        return redirect()->route('tasks.index')->with('success', 'Task added successfully.');
+        return redirect()->route('tasks.index')->with('success', 'Task added successfully!');
     }
 
     /**
@@ -53,6 +61,7 @@ class TaskController extends Controller
     public function destroy($id)
     {
         $task = Task::where('user_id', Auth::id())->findOrFail($id);
+        $task->tags()->detach();
         $task->delete();
 
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');

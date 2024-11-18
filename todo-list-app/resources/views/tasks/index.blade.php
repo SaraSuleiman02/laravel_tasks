@@ -11,11 +11,27 @@
             @csrf
             <div class="form-group d-flex gap-3">
                 <input name="title" type="text" class="form-control" placeholder="Enter a task here" required />
-
-                <button type="submit" class="btn btn-primary mt-2">Save</button>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Task Categories
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        @foreach ($tags as $tag)
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" name="categories[]" type="checkbox" id="tag{{ $tag->id }}" value="{{ $tag->id }}">
+                                    <label class="form-check-label" for="tag{{ $tag->id }}">{{ $tag->name }}</label>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mt-2">
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
-
 
         {{-- Task List --}}
         <div class="table-wrapper">
@@ -23,6 +39,7 @@
                 <thead>
                     <tr>
                         <th>No.</th>
+                        <th>Category</th>
                         <th>To-do item</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -32,6 +49,11 @@
                     @forelse ($tasks as $index => $task)
                         <tr class="{{ $task->status === 'completed' ? 'table-success' : 'table-light' }}">
                             <td>{{ $index + 1 }}</td>
+                            <td>
+                                @foreach ($task->tags as $tag)
+                                    <span class="badge bg-info">{{ $tag->name }}</span>
+                                @endforeach
+                            </td>
                             <td class="{{ $task->status === 'completed' ? 'text-decoration-line-through' : '' }}">
                                 {{ $task->title }}
                             </td>
@@ -56,7 +78,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">No tasks available. Add one above!</td>
+                            <td colspan="5" class="text-center">No tasks available. Add one above!</td>
                         </tr>
                     @endforelse
                 </tbody>
