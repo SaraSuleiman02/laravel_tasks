@@ -14,10 +14,24 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::where('user_id', Auth::id())->get();
-        $tags = Tag::all(); // Get all tags for the dropdown
+        // Check the authenticated user's role
+        $user = Auth::user(); // Get the currently authenticated user
 
-        return view('tasks.index', compact('tasks','tags'));
+        if ($user->role === 'user') {
+            // For users with role 'user', fetch tasks belonging to them
+            $tasks = Task::where('user_id', $user->id)->get();
+            $tags = Tag::all(); // Get all tags for the dropdown
+
+            return view('tasks.index', compact('tasks', 'tags'));
+        } elseif ($user->role === 'admin') {
+            // For users with role 'admin', fetch all tasks with their tags
+            $tasks = Task::with('tags')->get(); // Assuming Task has a tags relationship
+
+            return view('dashboard.task', compact('tasks'));
+        } else {
+            // Optional: Redirect to a default route if the role is neither 'user' nor 'admin'
+            return redirect()->route('home')->with('error', 'Unauthorized access.');
+        }
     }
 
     /**
