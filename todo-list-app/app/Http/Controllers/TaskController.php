@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Tag;
+use App\Models\User; // Add the User model to fetch users
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -14,48 +15,27 @@ class TaskController extends Controller
      */
     public function index()
     {
-        // Check the authenticated user's role
-        $user = Auth::user(); // Get the currently authenticated user
+        // Get the currently authenticated user
+        $user = Auth::user();
+        $tags = Tag::all();
 
         if ($user->role === 'user') {
-            // For users with role 'user', fetch tasks belonging to them
-            $tasks = Task::where('user_id', $user->id)->get();
-            $tags = Tag::all(); // Get all tags for the dropdown
+            // Fetch tasks belonging to the authenticated user
+            $tasks = Task::with('tags')->where('user_id', $user->id)->get();
 
+            // Pass tasks and tags to the view
             return view('tasks.index', compact('tasks', 'tags'));
         } elseif ($user->role === 'admin') {
-            // For users with role 'admin', fetch all tasks with their tags
-            $tasks = Task::with('tags')->get(); // Assuming Task has a tags relationship
+            // Fetch all tasks with their associated tags and users
+            $tasks = Task::with('tags', 'user')->get();
 
-            return view('dashboard.task', compact('tasks'));
+            // Fetch all users for the dropdown in the admin view
+            $users = User::all();
+            return view('dashboard.task', compact('tasks', 'users', 'tags'));
         } else {
             // Optional: Redirect to a default route if the role is neither 'user' nor 'admin'
             return redirect()->route('home')->with('error', 'Unauthorized access.');
         }
-    }
-
-    /**
-     * Store a newly created task in the database.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'categories' => 'array',
-            'categories.*' => 'exists:tags,id',
-        ]);
-
-        $task = Task::create([
-            'user_id' => Auth::id(),
-            'title' => $request->title,
-            'priority' => '200',
-            'status' => 'in_progress',
-        ]);
-        if (!empty($validated['categories'])) {
-            $task->tags()->attach($validated['categories']);
-        }
-
-        return redirect()->route('tasks.index')->with('success', 'Task added successfully!');
     }
 
     /**
@@ -67,6 +47,56 @@ class TaskController extends Controller
         $task->update(['status' => 'completed']);
 
         return redirect()->route('tasks.index')->with('success', 'Task marked as completed.');
+    }
+
+    /**
+     * Store a newly created task in the database.
+     */
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+        $tags = Tag::all();
+
+        if ($user->role === 'user') {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'categories' => 'array',
+                'categories.*' => 'exists:tags,id',
+            ]);
+
+            $task = Task::create([
+                'user_id' => Auth::id(),
+                'title' => $request->title,
+                'priority' => '200',
+                'status' => 'in_progress',
+            ]);
+            if (!empty($validated['categories'])) {
+                $task->tags()->attach($validated['categories']);
+            }
+
+            return redirect()->route('tasks.index')->with('success', 'Task added successfully!');
+        } elseif ($user->role === 'admin') {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'user_id' => 'required|exists:users,id',
+                'tags' => 'nullable|array',
+                'tags.*' => 'exists:tags,id',
+                'status' => 'required|in:in_progress,completed,pending',
+            ]);
+
+            $task = Task::create([
+                'title' => $validated['title'],
+                'user_id' => $validated['user_id'],
+                'status' => $validated['status'],
+            ]);
+
+            // Attach selected tags to the task
+            if (!empty($validated['tags'])) {
+                $task->tags()->sync($validated['tags']);
+            }
+
+            return response()->json(['message' => 'Task added successfully!']);
+        }
     }
 
     /**
