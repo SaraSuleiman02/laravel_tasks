@@ -17,6 +17,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedBigInteger('phone'); // 10-digit phone number
+            $table->date('dob');
+            $table->string('partner_name'); 
+            $table->date('event_date');
+            $table->enum('event_type', ['wedding', 'pre_wedding', 'honeymoon']); 
+            $table->string('city'); 
+            $table->float('budget', 10, 2); // Budget with precision
             $table->rememberToken();
             $table->timestamps();
         });
