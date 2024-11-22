@@ -1,6 +1,6 @@
-@extends('dashboard.layouts.navbar')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
     <div class="content" style="background-color: #ffff">
         <div class="row py-5">
             <div class="col-12 d-flex justify-content-between align-items-center">
@@ -25,32 +25,30 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($users as $user)
-                    <tr data-id="{{ $user->id }}">
-                        <td scope="row">{{ $users->firstItem() + $loop->index }}</td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->phone }}</td>
-                        <td>{{ $user->dob }}</td>
-                        <td>{{ $user->role }}</td>
+                <?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <tr data-id="<?php echo e($user->id); ?>">
+                        <td scope="row"><?php echo e($users->firstItem() + $loop->index); ?></td>
+                        <td><?php echo e($user->name); ?></td>
+                        <td><?php echo e($user->email); ?></td>
+                        <td><?php echo e($user->phone); ?></td>
+                        <td><?php echo e($user->dob); ?></td>
+                        <td><?php echo e($user->role); ?></td>
                         <td style="font-size: 20px;">
                             <a class="edit" title="Edit" data-toggle="tooltip"><span
                                     class="mdi mdi-pencil-box"></span></a>
                             <a class="delete" title="Delete" data-toggle="tooltip"><span class="mdi mdi-delete"></span></a>
                         </td>
                     </tr>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="7" class="text-center">No users available. Add one above!</td>
                     </tr>
-                @endforelse
+                <?php endif; ?>
             </tbody>
         </table>
 
         <!-- Pagination link -->
-        {{-- <div class="py-4 d-flex justify-content-center">
-            {{ $users->render('pagination::bootstrap-4') }}
-        </div> --}}
+        
 
     </div>
 
@@ -67,7 +65,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="addUserForm">
-                        @csrf
+                        <?php echo csrf_field(); ?>
                         <div class="form-group">
                             <label for="name">Name</label>
                             <input type="text" class="form-control" id="name" name="name"
@@ -120,7 +118,7 @@
                 const formData = $('#addUserForm').serialize();
 
                 $.ajax({
-                    url: "{{ route('users.store') }}",
+                    url: "<?php echo e(route('users.store')); ?>",
                     type: 'POST',
                     data: formData,
                     success: function(response) {
@@ -155,11 +153,11 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('users.destroy', ':id') }}".replace(':id',
+                            url: "<?php echo e(route('users.destroy', ':id')); ?>".replace(':id',
                                 userId),
                             type: 'DELETE',
                             data: {
-                                _token: '{{ csrf_token() }}',
+                                _token: '<?php echo e(csrf_token()); ?>',
                             },
                             success: function(response) {
                                 Swal.fire('Deleted!', response.message ||
@@ -176,4 +174,6 @@
             });
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('dashboard.layouts.navbar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\laravel\laravel_tasks\masterpiece-dashboard\resources\views/dashboard/user.blade.php ENDPATH**/ ?>
