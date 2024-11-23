@@ -14,24 +14,21 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-Route::get('/test', function () {
-    return view('dashboard.home');
-})->name('dashboard.home');
-
-Route::middleware('auth')->group(function () {
-
-    // Admin-specific routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Redirect admins directly to the dashboard
+    Route::get('/dashboard', function () {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('dashboard.home');
+        }
+        return view('dashboard');
+    })->name('dashboard');
+    
+    // Admin-specific routes (using the role middleware)
     Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/home', function () {
+            return view('dashboard.home');
+        })->name('dashboard.home');
+        
         Route::get('/dashboard/user', [UserController::class, 'index'])->name('dashboard.user');
         Route::get('/dashboard/user-details', [UserDetailController::class, 'index'])->name('dashboard.user_details');
         Route::get('/dashboard/service', [ServiceController::class, 'index'])->name('dashboard.service');
@@ -40,25 +37,26 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/wishlist', [WishlistController::class, 'index'])->name('dashboard.wishlist');
         Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
         Route::get('/dashboard/contacts', [ContactController::class, 'index'])->name('dashboard.contacts');
-        // Route::get('/dashboard/tags', [TagController::class, 'index'])->name('dashboard.tag');
+        
+        // Resource routes for admin
         Route::resource('users', UserController::class);
         Route::resource('userDetails', UserDetailController::class);
         Route::resource('services', ServiceController::class);
         Route::resource('vendors', VendorController::class);
-        // Route::resource('bookings', BookingController::class);
+        Route::resource('bookings', BookingController::class);
         Route::resource('wishlists', WishlistController::class);
         Route::resource('contacts', ContactController::class);
 
-        Route::get('/admin-profile',function(){
-           return view('dashboard.profile'); 
-        });
+        // Admin profile route
+        Route::get('/admin-profile', function() {
+            return view('dashboard.profile');
+        })->name('dashboard.profile');
     });
 
-    // Common routes
+    // Common routes (accessible by all authenticated users)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
 
 require __DIR__ . '/auth.php';
