@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class UserController extends Controller
@@ -85,5 +87,54 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User deleted successfully!',
         ]);
+    }
+
+    // Functions for Admin Profile
+    public function adminProfile(){
+        $id = Auth::id();
+        // dd($id);
+        // Get the user data from the database based on the ID
+        $userData = User::find($id);
+
+        if (!$userData) {
+            return redirect()->route('login')->with('error', 'User not found. Please log in again.');
+        }
+
+        return view('dashboard.profile', compact('userData'));
+    }
+
+    public function updateInfo(Request $request)
+    {
+        $id = Auth::id();
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'string|max:255',
+            'email' => 'email|max:255|unique:users,email,' ,
+        ]);
+
+        $user->update($request->all());
+        return response()->json(['success' => 'Profile updated successfully!']);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $id = Auth::id();
+        $user = User::findOrFail($id);
+        
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+
+        
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['error' => 'Current password is incorrect'], 422);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->update($request->all());
+
+        return response()->json(['success' => 'Password updated successfully!']);
     }
 }

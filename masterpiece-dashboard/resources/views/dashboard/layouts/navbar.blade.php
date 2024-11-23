@@ -152,7 +152,7 @@
                                     <img src="{{ asset('assets/images/user/user-xs-01.jpg') }}"
                                         class="user-image rounded-circle" alt="User Image" />
                                     {{-- Change it to be dynamic --}}
-                                    <span class="d-none d-lg-inline-block">John Doe</span>
+                                    <span class="d-none d-lg-inline-block">Admin</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>

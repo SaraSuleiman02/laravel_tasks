@@ -10,6 +10,7 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,9 +48,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('contacts', ContactController::class);
 
         // Admin profile route
-        Route::get('/admin-profile', function() {
-            return view('dashboard.profile');
-        })->name('dashboard.profile');
+        // Route::get('/admin-profile', function() {
+        //     return view('dashboard.profile');
+        // })->name('dashboard.profile');
+        // Route::get('/admin-profile', [AdminProfileController::class,'index'])->name('dashboard.profile');
+
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/admin-profile', [UserController::class, 'adminProfile'])->name('dashboard.profile');
+            // Route::post('/admin-profile/update-image', [UserController::class, 'updateImage'])->name('profile.updateImage');
+            Route::post('/admin-profile/update-info', [UserController::class, 'updateInfo'])->name('profile.updateInfo');
+            Route::post('/admin-profile/update-password', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
+        });
     });
 
     // Common routes (accessible by all authenticated users)
