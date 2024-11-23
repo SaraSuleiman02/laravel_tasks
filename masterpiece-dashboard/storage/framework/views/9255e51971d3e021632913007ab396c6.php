@@ -104,7 +104,7 @@
                         </li>
 
                         <li class="<?php echo e(request()->routeIs('dashboard.booking') ? 'active' : ''); ?>">
-                            <a class="sidenav-item-link" href="calendar.html">
+                            <a class="sidenav-item-link" href="<?php echo e(route('dashboard.booking')); ?>">
                                 <i class="mdi mdi-calendar-check"></i>
                                 <span class="nav-text">User Bookings</span>
                             </a>
@@ -112,7 +112,7 @@
 
 
                         <li class="<?php echo e(request()->routeIs('dashboard.wishlist') ? 'active' : ''); ?>">
-                            <a class="sidenav-item-link" href="calendar.html">
+                            <a class="sidenav-item-link" href="<?php echo e(route('dashboard.wishlist')); ?>">
                                 <i class="mdi mdi-heart"></i>
                                 <span class="nav-text">User Wishlist</span>
                             </a>

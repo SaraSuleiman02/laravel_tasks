@@ -104,7 +104,7 @@
                         </li>
 
                         <li class="{{ request()->routeIs('dashboard.booking') ? 'active' : '' }}">
-                            <a class="sidenav-item-link" href="calendar.html">
+                            <a class="sidenav-item-link" href="{{ route('dashboard.booking') }}">
                                 <i class="mdi mdi-calendar-check"></i>
                                 <span class="nav-text">User Bookings</span>
                             </a>
@@ -112,7 +112,7 @@
 
 
                         <li class="{{ request()->routeIs('dashboard.wishlist') ? 'active' : '' }}">
-                            <a class="sidenav-item-link" href="calendar.html">
+                            <a class="sidenav-item-link" href="{{ route('dashboard.wishlist') }}">
                                 <i class="mdi mdi-heart"></i>
                                 <span class="nav-text">User Wishlist</span>
                             </a>

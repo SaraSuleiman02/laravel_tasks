@@ -31,6 +31,7 @@ class VendorController extends Controller
             'service_id' => 'required|exists:services,id',
             'location' => 'required|string|min:10',
             'about' => 'required|string',
+            'price' => 'required|numeric|min:0',
         ]);
 
         // Create the Vendor
@@ -39,6 +40,7 @@ class VendorController extends Controller
             'service_id' => $request->service_id,
             'location' => $request->location,
             'about' => $request->about,
+            'price' => $request->price,
         ]);
 
         // Return a JSON response
@@ -59,6 +61,7 @@ class VendorController extends Controller
             'service_id' => 'required|exists:services,id',
             'location' => 'required|string|min:10',
             'about' => 'required|string',
+            'price' => 'required|numeric|min:0',
         ]);
 
         // Update the vendor

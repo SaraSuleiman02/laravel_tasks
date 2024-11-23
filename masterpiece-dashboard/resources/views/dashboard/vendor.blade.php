@@ -20,6 +20,7 @@
                     <th scope="col">Service Name</th>
                     <th scope="col">Location</th>
                     <th scope="col">About</th>
+                    <th scope="col">Price</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
@@ -31,6 +32,7 @@
                         <td>{{ $vendor->service->name }}</td>
                         <td>{{ $vendor->location }}</td>
                         <td>{{ $vendor->about }}</td>
+                        <td>{{ $vendor->price }} JOD</td>
                         <td style="font-size: 20px;">
                             <a class="edit" title="Edit" data-toggle="tooltip"><span
                                     class="mdi mdi-pencil-box"></span></a>
@@ -39,7 +41,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center">No vendors available. Add one above!</td>
+                        <td colspan="7" class="text-center">No vendors available. Add one above!</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -82,6 +84,11 @@
                         <div class="form-group">
                             <label for="about">About</label>
                             <textarea class="form-control" id="about" name="about" placeholder="Enter info about the vendor" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="number" class="form-control" id="price" name="price"
+                                placeholder="Enter the price">
                         </div>
                     </form>
                 </div>
@@ -147,7 +154,11 @@
                         });
                         serviceSelect += "</select>";
                         $(this).html(serviceSelect);
-                    } else if (index > 0 && index < 5) {
+                    } else if (index == 5) {
+                        $(this).html(
+                            `<input type="number" class="form-control" value="${content}">`);
+
+                    } else if (index > 0 && index < 6) {
                         // For other editable fields, replace content with an input
                         $(this).html(`<input type="text" class="form-control" value="${content}">`);
                     }
@@ -169,6 +180,7 @@
                     service_id: row.find("select").val(), // Fetch selected service ID
                     location: row.find("input").eq(1).val(),
                     about: row.find("input").eq(2).val(),
+                    price: row.find("input").eq(3).val(), 
                     _method: 'PUT',
                     _token: '{{ csrf_token() }}'
                 };
