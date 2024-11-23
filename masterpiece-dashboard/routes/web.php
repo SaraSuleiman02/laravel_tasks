@@ -9,6 +9,7 @@ use App\Http\Controllers\UserDetailController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,13 +23,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
         return view('dashboard');
     })->name('dashboard');
-    
+
     // Admin-specific routes (using the role middleware)
     Route::middleware('role:admin')->group(function () {
-        Route::get('/dashboard/home', function () {
-            return view('dashboard.home');
-        })->name('dashboard.home');
-        
+        Route::get('/dashboard/home', [DashboardController::class, 'index'])->name('dashboard.home');
+
         Route::get('/dashboard/user', [UserController::class, 'index'])->name('dashboard.user');
         Route::get('/dashboard/user-details', [UserDetailController::class, 'index'])->name('dashboard.user_details');
         Route::get('/dashboard/service', [ServiceController::class, 'index'])->name('dashboard.service');
@@ -37,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard/wishlist', [WishlistController::class, 'index'])->name('dashboard.wishlist');
         Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
         Route::get('/dashboard/contacts', [ContactController::class, 'index'])->name('dashboard.contacts');
-        
+
         // Resource routes for admin
         Route::resource('users', UserController::class);
         Route::resource('userDetails', UserDetailController::class);

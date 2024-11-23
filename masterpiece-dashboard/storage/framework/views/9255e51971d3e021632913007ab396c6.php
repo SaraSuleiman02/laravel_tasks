@@ -36,7 +36,9 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js">
     </script>
-
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
@@ -55,7 +57,7 @@
             <div id="sidebar" class="sidebar sidebar-with-footer">
                 <!-- Aplication Brand -->
                 <div class="app-brand">
-                    <a href="/index.html">
+                    <a href="<?php echo e(route('dashboard.home')); ?>">
                         <img src="<?php echo e(asset('assets/images/logo.png')); ?>" alt="Mono">
                         <span class="brand-name">Angels</span>
                     </a>
@@ -65,7 +67,7 @@
                     <!-- sidebar menu -->
                     <ul class="nav sidebar-inner" id="sidebar-menu">
                         <li class="<?php echo e(request()->routeIs('dashboard.home') ? 'active' : ''); ?>">
-                            <a class="sidenav-item-link" href="index.html">
+                            <a class="sidenav-item-link" href="<?php echo e(route('dashboard.home')); ?>">
                                 <i class="mdi mdi-briefcase-account-outline"></i>
                                 <span class="nav-text">Dashboard</span>
                             </a>
