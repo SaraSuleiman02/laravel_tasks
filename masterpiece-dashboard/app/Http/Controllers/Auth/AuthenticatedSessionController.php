@@ -41,7 +41,7 @@ class AuthenticatedSessionController extends Controller
             }
 
             // Default redirect for non-admin users
-            return redirect()->route('home');
+            return redirect()->route('/');
         }
 
         // If authentication fails
