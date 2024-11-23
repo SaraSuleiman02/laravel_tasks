@@ -28,7 +28,7 @@
                 @forelse ($userDetails as $userDetail)
                     <tr data-id="{{ $userDetail->id }}">
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $userDetail->user->name ?? 'N/A' }}</td>
+                        <td data-user-id="{{ $userDetail->user->id ?? '' }}">{{ $userDetail->user->name ?? 'N/A' }}</td>
                         <td>{{ $userDetail->partner_name }}</td>
                         <td>{{ $userDetail->event_type }}</td>
                         <td>{{ $userDetail->budget }}</td>
@@ -137,31 +137,33 @@
             // Handle Edit button click
             $(document).on('click', '.edit', function() {
                 const row = $(this).closest('tr');
-                const id = row.data('id');
-                const userId = row.find('td:nth-child(2)').data('userId');
-                const partnerName = row.find('td:nth-child(3)').text();
-                const eventType = row.find('td:nth-child(4)').text();
-                const budget = row.find('td:nth-child(5)').text();
-                const city = row.find('td:nth-child(6)').text();
+                const id = row.data('id'); // Get the detail ID
+                const userId = row.find('td:nth-child(2)').data('user-id'); // Get the associated user ID
+                const partnerName = row.find('td:nth-child(3)').text(); // Partner name
+                const eventType = row.find('td:nth-child(4)').text(); // Event type
+                const budget = row.find('td:nth-child(5)').text(); // Budget
+                const city = row.find('td:nth-child(6)').text(); // City
 
                 // Populate the modal fields
-                $('#detailId').val(id); // Correct hidden input name
-                $('#user_id').val(userId);
-                $('#partner-name').val(partnerName);
+                $('#detailId').val(id); // Set detail ID
+                $('#user_id').val(userId); // Set user ID to the selected value
+
+                $('#partner-name').val(partnerName); // Set partner name
 
                 // Handling Event Type (for checkboxes)
-                const selectedEvents = eventType.split(',').map(event => event.trim());
+                const selectedEvents = eventType.split(',').map(event => event.trim()); // Split the event type string into an array
                 $('input[name="event_type[]"]').each(function() {
-                    $(this).prop('checked', selectedEvents.includes($(this).val()));
+                    $(this).prop('checked', selectedEvents.includes($(this).val())); // Check the corresponding checkboxes
                 });
 
-                $('#budget').val(budget);
-                $('#city').val(city);
+                $('#budget').val(budget); // Set the budget
+                $('#city').val(city); // Set the city
 
                 // Change modal title and button label for editing
                 $('#exampleModalFormTitle').text('Edit User Details');
                 $('#saveDetailsBtn').text('Update');
 
+                // Show the modal
                 $('#exampleModalForm').modal('show');
             });
 
@@ -181,19 +183,18 @@
                 // Ensure CSRF token is included
                 formData.append('_token', '{{ csrf_token() }}');
 
-                const url = id ?
-                    "{{ route('userDetails.update', ':id') }}".replace(':id', id) :
+                const url = id ? 
+                    "{{ route('userDetails.update', ':id') }}".replace(':id', id) : 
                     "{{ route('userDetails.store') }}";
 
                 $.ajax({
                     url: url,
-                    type: 'POST', // Always POST; we use `_method` for PUT
+                    type: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        Swal.fire('Success!', response.message || 'User added successfully!',
-                                'success')
+                        Swal.fire('Success!', response.message || 'User added successfully!', 'success')
                             .then(() => {
                                 $('#exampleModalForm').modal('hide');
                                 location.reload();
@@ -201,8 +202,7 @@
                     },
                     error: function(xhr) {
                         const errors = xhr.responseJSON?.errors || {};
-                        const message = Object.values(errors).join('<br>') || xhr.responseJSON
-                            ?.message;
+                        const message = Object.values(errors).join('<br>') || xhr.responseJSON?.message;
                         Swal.fire('Error!', message, 'error');
                     }
                 });
@@ -217,22 +217,24 @@
                     title: 'Are you sure?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('userDetails.destroy', ':id') }}".replace(':id',
-                                id),
+                            url: "{{ route('userDetails.destroy', ':id') }}".replace(':id', id),
                             type: 'DELETE',
                             data: {
-                                _token: '{{ csrf_token() }}'
+                                _token: '{{ csrf_token() }}',
                             },
                             success: function(response) {
-                                Swal.fire('Deleted!', response.message, 'success');
-                                row.remove();
+                                Swal.fire('Deleted!', response.message || 'User deleted successfully!', 'success')
+                                    .then(() => {
+                                        table.row(row).remove().draw();
+                                    });
                             },
-                            error: function() {
-                                Swal.fire('Error!', 'Failed to delete.', 'error');
+                            error: function(xhr) {
+                                Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
                             }
                         });
                     }

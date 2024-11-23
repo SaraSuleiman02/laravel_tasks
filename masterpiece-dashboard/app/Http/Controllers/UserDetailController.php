@@ -66,16 +66,27 @@ class UserDetailController extends Controller
 
         $request->validate([
             'partner_name' => 'required|string|max:255',
-            'event_type' => 'required|in:pre-wedding,wedding,honeymoon',
+            'event_type' => 'required|array',
+            'event_type.*' => 'in:pre-wedding,wedding,honeymoon',
             'budget' => 'required|numeric|min:0',
             'city' => 'required|in:Amman,Zarqa,Irbid,Aqaba,Mafraq,Jerash,Madaba,Ajloun,Salt,Karak,Tafilah,Ma’an',
         ]);
 
+        // Convert event_type array to a comma-separated string
+        $eventTypeString = implode(',', $request->event_type);
+
         // Update the user detail
-        $userDetail->update($request->all());
+        $userDetail->update([
+            'partner_name' => $request->partner_name,
+            'event_type' => $eventTypeString,
+            'budget' => $request->budget,
+            'city' => $request->city,
+            'user_id' => $request->user_id,
+        ]);
 
         return response()->json(['message' => 'User detail updated successfully.']);
     }
+
 
     /**
      * Remove the specified resource from storage.
