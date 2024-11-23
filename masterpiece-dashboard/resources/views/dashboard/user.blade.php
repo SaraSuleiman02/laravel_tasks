@@ -139,6 +139,57 @@
                 });
             });
 
+            // Edit user
+            $(document).on("click", ".edit", function() {
+                var row = $(this).closest("tr");
+                row.find("td:not(:last-child)").each(function(index) {
+                    var content = $(this).text();
+                    if (index > 0) {
+                        $(this).html(`<input type="text" class="form-control" value="${content}">`);
+                    }
+                });
+                row.find(".edit").removeClass("edit").addClass("save").html(
+                    '<span class="mdi mdi-check-all"></span>');
+            });
+
+            // Save edited user
+            $(document).on("click", ".save", function() {
+                var row = $(this).closest("tr");
+                var userId = row.data("id");
+                var data = {
+                    name: row.find("input").eq(0).val(),
+                    email: row.find("input").eq(1).val(),
+                    phone: row.find("input").eq(2).val(),
+                    dob: row.find("input").eq(3).val(),
+                    role: row.find("input").eq(4).val(),
+                    _method: 'PUT',
+                    _token: '{{ csrf_token() }}'
+                };
+
+                $.ajax({
+                    url: "{{ route('users.update', ':id') }}".replace(':id', userId),
+                    method: 'PUT',
+                    data: data,
+                    success: function(response) {
+                        Swal.fire(
+                            "Updated!",
+                            response.message || "User has been updated successfully.",
+                            "success"
+                        ).then(() => {
+                            location.reload(); // Reload the page to update the table
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire(
+                            "Error!",
+                            xhr.responseJSON.message || "Failed to update user.",
+                            "error"
+                        );
+                    }
+                });
+            });
+
+
             // Delete User
             $(document).on('click', '.delete', function() {
                 const row = $(this).closest('tr');

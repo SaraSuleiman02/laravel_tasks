@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\UserDetailController;
+use App\Http\Controllers\VendorController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,19 +26,20 @@ Route::get('/test', function () {
     return view('dashboard.home');
 })->name('dashboard.home');
 
-// Route::get('/dashboard/user', [UserController::class, 'index'])->name('dashboard.user');
-// Route::resource('users', UserController::class);
-
 Route::middleware('auth')->group(function () {
 
     // Admin-specific routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/dashboard/user', [UserController::class, 'index'])->name('dashboard.user');
+        Route::get('/dashboard/user-details', [UserDetailController::class, 'index'])->name('dashboard.user_details');
         Route::get('/dashboard/service', [ServiceController::class, 'index'])->name('dashboard.service');
+        Route::get('/dashboard/vendor', [VendorController::class, 'index'])->name('dashboard.vendor');
         Route::get('/dashboard/contacts', [ContactController::class, 'index'])->name('dashboard.contacts');
         // Route::get('/dashboard/tags', [TagController::class, 'index'])->name('dashboard.tag');
         Route::resource('users', UserController::class);
+        Route::resource('userDetails', UserDetailController::class);
         Route::resource('services', ServiceController::class);
+        Route::resource('vendors', VendorController::class);
         Route::resource('contacts', ContactController::class);
     });
 

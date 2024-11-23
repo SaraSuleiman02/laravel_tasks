@@ -11,7 +11,7 @@ class Service extends Model
     
     protected $fillable = ['name', 'description', 'img_path'];
 
-    // public function vendors() {
-    //     return $this->hasMany(Vendor::class);
-    // }
+    public function vendors() {
+        return $this->hasMany(Vendor::class);
+    }
 }

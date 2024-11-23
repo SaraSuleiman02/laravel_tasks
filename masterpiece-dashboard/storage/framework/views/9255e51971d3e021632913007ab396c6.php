@@ -78,7 +78,14 @@
                         <li class="<?php echo e(request()->routeIs('dashboard.user') ? 'active' : ''); ?>">
                             <a class="sidenav-item-link" href="<?php echo e(route('dashboard.user')); ?>">
                                 <i class="mdi mdi-account-group"></i>
-                                <span class="nav-text">Usres</span>
+                                <span class="nav-text">Users</span>
+                            </a>
+                        </li>
+
+                        <li class="<?php echo e(request()->routeIs('dashboard.user_details') ? 'active' : ''); ?>">
+                            <a class="sidenav-item-link" href="<?php echo e(route('dashboard.user_details')); ?>">
+                                <i class="mdi mdi-account-card-details"></i>
+                                <span class="nav-text">User Details</span>
                             </a>
                         </li>
 
@@ -90,7 +97,7 @@
                         </li>
 
                         <li class="<?php echo e(request()->routeIs('dashboard.vendor') ? 'active' : ''); ?>">
-                            <a class="sidenav-item-link" href="calendar.html">
+                            <a class="sidenav-item-link" href="<?php echo e(route('dashboard.vendor')); ?>">
                                 <i class="mdi mdi-human-greeting"></i>
                                 <span class="nav-text">Vendors</span>
                             </a>

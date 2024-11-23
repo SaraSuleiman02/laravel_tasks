@@ -4,35 +4,33 @@
     <div class="content" style="background-color: #ffff">
         <div class="row py-5">
             <div class="col-12 d-flex justify-content-between align-items-center">
-                <h2>User <b>Details</b></h2>
+                <h2>Vendor <b>Details</b></h2>
                 <button type="button" class="btn btn-primary add-new" data-toggle="modal" data-target="#exampleModalForm">
                     Add New
                 </button>
             </div>
         </div>
 
-        <!-- Table for displaying users -->
+        <!-- Table for displaying vendors -->
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
-                    <th scope="col">DOB</th>
-                    <th scope="col">Role</th>
+                    <th scope="col">Vendor Name</th>
+                    <th scope="col">Service Name</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">About</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                    <tr data-id="<?php echo e($user->id); ?>">
-                        <td scope="row"><?php echo e($users->firstItem() + $loop->index); ?></td>
-                        <td><?php echo e($user->name); ?></td>
-                        <td><?php echo e($user->email); ?></td>
-                        <td><?php echo e($user->phone); ?></td>
-                        <td><?php echo e($user->dob); ?></td>
-                        <td><?php echo e($user->role); ?></td>
+                <?php $__empty_1 = true; $__currentLoopData = $vendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <tr data-id="<?php echo e($vendor->id); ?>">
+                        <td scope="row"><?php echo e($loop->iteration); ?></td>
+                        <td><?php echo e($vendor->name); ?></td>
+                        <td><?php echo e($vendor->service->name); ?></td>
+                        <td><?php echo e($vendor->location); ?></td>
+                        <td><?php echo e($vendor->about); ?></td>
                         <td style="font-size: 20px;">
                             <a class="edit" title="Edit" data-toggle="tooltip"><span
                                     class="mdi mdi-pencil-box"></span></a>
@@ -41,15 +39,11 @@
                     </tr>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
-                        <td colspan="7" class="text-center">No users available. Add one above!</td>
+                        <td colspan="6" class="text-center">No vendors available. Add one above!</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
-
-        <!-- Pagination link -->
-        
-
     </div>
 
     <!-- Add/Edit User Modal -->
@@ -58,42 +52,36 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalFormTitle">Add New User</h5>
+                    <h5 class="modal-title" id="exampleModalFormTitle">Add New Vendor</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="addUserForm">
+                    <form id="addVendorForm">
                         <?php echo csrf_field(); ?>
                         <div class="form-group">
-                            <label for="name">Name</label>
+                            <label for="name">Vendor Name</label>
                             <input type="text" class="form-control" id="name" name="name"
                                 placeholder="Enter name" required>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email address</label>
-                            <input type="email" class="form-control" id="email" name="email"
-                                placeholder="Enter email" required>
+                            <label for="service_id">Service Name</label>
+                            <select class="form-control" id="service_id" name="service_id" required>
+                                <option value="">Select Service</option>
+                                <?php $__currentLoopData = $services; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $service): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($service->id); ?>"><?php echo e($service->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password"
-                                placeholder="Enter password" required>
+                            <label for="location">Location</label>
+                            <input type="text" class="form-control" id="location" name="location"
+                                placeholder="Enter the location">
                         </div>
                         <div class="form-group">
-                            <label for="phone">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone"
-                                placeholder="Enter phone number">
-                        </div>
-                        <div class="form-group">
-                            <label for="dob">Date of Birth</label>
-                            <input type="date" class="form-control" id="dob" name="dob">
-                        </div>
-                        <div class="form-group">
-                            <label for="role">Role</label>
-                            <input type="text" class="form-control" id="role" name="role"
-                                placeholder="Enter role">
+                            <label for="about">About</label>
+                            <textarea class="form-control" id="about" name="about" placeholder="Enter info about the vendor" required></textarea>
                         </div>
                     </form>
                 </div>
@@ -107,18 +95,21 @@
 
     <script>
         $(document).ready(function() {
+            // Pass services data to JavaScript
+            const services = <?php echo json_encode($services, 15, 512) ?>;
+
             // Initialize DataTable for the table
             $('table').DataTable({
                 "searching": true // Enables the search functionality
             });
 
-            // Add New User via Modal
+            // Add New Vendor via Modal
             $('#saveUserBtn').off().on('click', function(event) {
                 event.preventDefault();
-                const formData = $('#addUserForm').serialize();
+                const formData = $('#addVendorForm').serialize();
 
                 $.ajax({
-                    url: "<?php echo e(route('users.store')); ?>",
+                    url: "<?php echo e(route('vendors.store')); ?>",
                     type: 'POST',
                     data: formData,
                     success: function(response) {
@@ -137,50 +128,68 @@
                 });
             });
 
-            // Edit user
+            // Edit vendor
             $(document).on("click", ".edit", function() {
                 var row = $(this).closest("tr");
-                row.find("td:not(:last-child)").each(function(index) {
-                    var content = $(this).text();
-                    if (index > 0) {
+                var vendorId = row.data("id");
+
+                row.find("td").each(function(index) {
+                    var content = $(this).text().trim();
+
+                    // Update specific fields
+                    if (index === 2) {
+                        // Replace service name with dropdown
+                        let serviceSelect = '<select class="form-control">';
+                        services.forEach(service => {
+                            serviceSelect += `<option value="${service.id}" ${
+                    content === service.name ? "selected" : ""
+                }>${service.name}</option>`;
+                        });
+                        serviceSelect += "</select>";
+                        $(this).html(serviceSelect);
+                    } else if (index > 0 && index < 5) {
+                        // For other editable fields, replace content with an input
                         $(this).html(`<input type="text" class="form-control" value="${content}">`);
                     }
                 });
+
+                // Change edit button to save button
                 row.find(".edit").removeClass("edit").addClass("save").html(
                     '<span class="mdi mdi-check-all"></span>');
             });
 
-            // Save edited user
+
+            // Save edited vendor
             $(document).on("click", ".save", function() {
                 var row = $(this).closest("tr");
-                var userId = row.data("id");
+                var vendorId = row.data("id");
+
                 var data = {
                     name: row.find("input").eq(0).val(),
-                    email: row.find("input").eq(1).val(),
-                    phone: row.find("input").eq(2).val(),
-                    dob: row.find("input").eq(3).val(),
-                    role: row.find("input").eq(4).val(),
+                    service_id: row.find("select").val(), // Fetch selected service ID
+                    location: row.find("input").eq(1).val(),
+                    about: row.find("input").eq(2).val(),
                     _method: 'PUT',
                     _token: '<?php echo e(csrf_token()); ?>'
                 };
 
                 $.ajax({
-                    url: "<?php echo e(route('users.update', ':id')); ?>".replace(':id', userId),
+                    url: "<?php echo e(route('vendors.update', ':id')); ?>".replace(':id', vendorId),
                     method: 'PUT',
                     data: data,
                     success: function(response) {
                         Swal.fire(
                             "Updated!",
-                            response.message || "User has been updated successfully.",
+                            response.message || "Vendor has been updated successfully.",
                             "success"
                         ).then(() => {
-                            location.reload(); // Reload the page to update the table
+                            location.reload();
                         });
                     },
                     error: function(xhr) {
                         Swal.fire(
                             "Error!",
-                            xhr.responseJSON.message || "Failed to update user.",
+                            xhr.responseJSON.message || "Failed to update vendor.",
                             "error"
                         );
                     }
@@ -188,10 +197,11 @@
             });
 
 
+
             // Delete User
             $(document).on('click', '.delete', function() {
                 const row = $(this).closest('tr');
-                const userId = row.data('id');
+                const vendorId = row.data('id');
 
                 Swal.fire({
                     title: 'Are you sure?',
@@ -204,20 +214,20 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "<?php echo e(route('users.destroy', ':id')); ?>".replace(':id',
-                                userId),
+                            url: "<?php echo e(route('vendors.destroy', ':id')); ?>".replace(':id',
+                                vendorId),
                             type: 'DELETE',
                             data: {
                                 _token: '<?php echo e(csrf_token()); ?>',
                             },
                             success: function(response) {
                                 Swal.fire('Deleted!', response.message ||
-                                    'User deleted successfully!', 'success');
+                                    'Vendor deleted successfully!', 'success');
                                 row.remove(); // Remove the row
                             },
                             error: function(xhr) {
                                 Swal.fire('Error!', xhr.responseJSON.message ||
-                                    'Failed to delete user.', 'error');
+                                    'Failed to delete vendor.', 'error');
                             },
                         });
                     }
@@ -227,4 +237,4 @@
     </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('dashboard.layouts.navbar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\laravel\laravel_tasks\masterpiece-dashboard\resources\views/dashboard/user.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('dashboard.layouts.navbar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\laravel\laravel_tasks\masterpiece-dashboard\resources\views/dashboard/vendor.blade.php ENDPATH**/ ?>

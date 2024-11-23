@@ -140,14 +140,13 @@
                                     'success')
                                 .then(() => {
                                     if (serviceId) {
-                                        // Update the existing row in the table
                                         const row = $(`tr[data-id="${serviceId}"]`);
                                         row.find('td:nth-child(3)').text(response.service
-                                        .name); // Update name
+                                        .name); 
                                         row.find('td:nth-child(4)').text(response.service
-                                            .description); // Update description
+                                            .description); 
                                         row.find('td:nth-child(2) img').attr('src', response
-                                            .service.img_path); // Update image
+                                            .service.img_path);
                                     }
 
                                     // Reset and hide the modal

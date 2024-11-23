@@ -52,4 +52,9 @@ class User extends Authenticatable
         'event_date' => 'date',
         'budget' => 'float',
     ];
+
+    public function userDetail()
+    {
+        return $this->hasOne(UserDetail::class, 'user_id');
+    }
 }
